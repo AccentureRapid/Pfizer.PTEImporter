@@ -1,6 +1,6 @@
 ﻿using System.Data.Entity;
 using Abp.EntityFramework;
-
+using Pfizer.PTEImporter.Core.Entities;
 
 namespace Pfizer.PTEImporter
 {
@@ -8,7 +8,7 @@ namespace Pfizer.PTEImporter
     public class PTEImporterDbContext : AbpDbContext
     {
        
-        //public virtual IDbSet<SystemParameter> SystemParameter { get; set; }
+        public virtual IDbSet<EpayRawDataLanding> EpayRawDataLanding { get; set; }
         public PTEImporterDbContext()
             : base("Default")
         {
