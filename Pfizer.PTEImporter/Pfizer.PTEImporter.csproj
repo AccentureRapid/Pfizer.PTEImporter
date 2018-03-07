@@ -182,7 +182,12 @@
     <Compile Include="Worker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Template\Template.html" />
+    <Content Include="In\ReadMe.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Template\Template.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="App.config" />
     <Content Include="log4net.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -192,7 +197,6 @@
   <ItemGroup>
     <Folder Include="Backup\" />
     <Folder Include="Core\Entities\" />
-    <Folder Include="In\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

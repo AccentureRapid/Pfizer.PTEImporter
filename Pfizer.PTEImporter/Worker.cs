@@ -75,9 +75,9 @@ namespace Pfizer.PTEImporter
             }
 
             DirectoryInfo directory = new DirectoryInfo(sourceFileDirectory);
-            var files = directory.GetFiles();
+            var files = directory.GetFiles().Where( x => x.Extension.Contains("xls") || x.Extension.Contains("xlsx"));
 
-            if (files.Length == 0)
+            if (!files.Any())
             {
                 var subject = ConfigurationManager.AppSettings["Subject"];
                 var from = ConfigurationManager.AppSettings["From"];
