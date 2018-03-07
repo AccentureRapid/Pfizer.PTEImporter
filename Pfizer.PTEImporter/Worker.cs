@@ -3,7 +3,10 @@ using Abp.Dependency;
 using Abp.Events.Bus;
 using Castle.Core.Logging;
 using Pfizer.PTEImporter.Job;
+using Pfizer.PTEImporter.Services;
 using System;
+using System.Configuration;
+using System.IO;
 using System.Linq;
 using System.Threading;
 
@@ -17,13 +20,19 @@ namespace Pfizer.PTEImporter
 
         private readonly IEventBus _eventBus;
         private readonly IBackgroundJobManager _backgroundJobManager;
+        private readonly IFileService _fileService;
+        private readonly IEmailService _emailService;
         public Worker(
             IEventBus eventBus,
-            IBackgroundJobManager backgroundJobManager
+            IBackgroundJobManager backgroundJobManager,
+            IFileService fileService,
+            IEmailService emailService
             )
         {
             _eventBus = eventBus;
             _backgroundJobManager = backgroundJobManager;
+            _fileService = fileService;
+            _emailService = emailService;
 
             Logger = NullLogger.Instance;
         }
@@ -39,23 +48,52 @@ namespace Pfizer.PTEImporter
             };
 
             Logger.Info("The worker is running...");
-           
 
-            //if no interface file found, e email will send to MAIN team
-            //var files = await _systemService.GetInterfaceFileInfo();
-            //if (!files.Any())
-            //{
+            //allowed to be running within the days of the week configured in app.config
+            var runningDays = ConfigurationManager.AppSettings["RunningDays"];
+            if (!string.IsNullOrEmpty(runningDays))
+            {
+                var days = runningDays.Split(',');
+                var dayOfTheWeek = Convert.ToInt32(DateTime.Now.DayOfWeek);
+                if (!days.Any( x => x == dayOfTheWeek.ToString()))
+                {
+                    Environment.Exit(0);
+                }
+            }
+            //get the full path for the data source file
+            string sourceFileFullPath = string.Empty;
+            string sourceFileDirectory = string.Empty;
 
-                //var subject = string.Format("sample({0})", DateTime.UtcNow.ToString("dd/MM/yyyy"));
-                //var tempatePath = string.Format(@"{0}\Template\{1}", System.AppDomain.CurrentDomain.BaseDirectory, "NoInterfaceLoadedEmailTemplate.html");
-                //string body = await _fileService.ReadAllText(tempatePath);
-                //_emailService.SendEmailAsync(from, recipients, subject, body, new string[] { });
+            var dataSourceFileDirectory = ConfigurationManager.AppSettings["DataSourceFileDirectory"];
+            if (!string.IsNullOrEmpty(dataSourceFileDirectory))
+            {
+                sourceFileDirectory = dataSourceFileDirectory;
+            }
+            else
+            {
+                sourceFileDirectory = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "In");
+            }
 
-                //Logger.Info("Application will exit in 10 seconds...");
-                //Environment.Exit(0);
-            //}
-          
-            _backgroundJobManager.Enqueue<LoadDataJob, LoadDataJobParameter>(new LoadDataJobParameter { FilePath = "" });
+            DirectoryInfo directory = new DirectoryInfo(sourceFileDirectory);
+            var files = directory.GetFiles();
+
+            if (files.Length == 0)
+            {
+                var subject = ConfigurationManager.AppSettings["Subject"];
+                var from = ConfigurationManager.AppSettings["From"];
+                var recipients = ConfigurationManager.AppSettings["Recipients"];
+                var tempateFullPath = string.Format(@"{0}\Template\{1}", AppDomain.CurrentDomain.BaseDirectory, "Template.html");
+                string body = await _fileService.ReadAllText(tempateFullPath);
+
+                var splittedRecipients = recipients.Split(';');
+                _emailService.SendEmail(from, splittedRecipients, subject, body, new string[] { });
+                Environment.Exit(0);
+            }
+
+            var sourceFile = files.ToList().FirstOrDefault();
+            sourceFileFullPath = sourceFile.FullName;
+
+            _backgroundJobManager.Enqueue<LoadDataJob, LoadDataJobParameter>(new LoadDataJobParameter { FilePath = sourceFileFullPath });
             Logger.Info("The worker finished its task, background job is running...");
         }
     }

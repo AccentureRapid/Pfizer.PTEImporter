@@ -9,14 +9,14 @@ namespace Pfizer.PTEImporter.Services
 {
     public interface IEmailService : ITransientDependency
     {
-        void SendEmailAsync(string from,
+        void SendEmail(string from,
             string recipients,
             string subject,
             string body,
             object userToken = null);
 
-        void SendEmailAsync(string from, string recipients, string subject, string body, string[] files);
-        void SendEmailAsync(string from, string[] recipients, string subject, string body, string[] files);
+        void SendEmail(string from, string recipients, string subject, string body, string[] files);
+        void SendEmail(string from, string[] recipients, string subject, string body, string[] files);
 
     }
 }

@@ -24,7 +24,7 @@ namespace Pfizer.PTEImporter.Services
 
             InitializeSMTP();
         }
-        public void SendEmailAsync(string from, string recipients, string subject, string body, object userToken = null)
+        public void SendEmail(string from, string recipients, string subject, string body, object userToken = null)
         {
             var client = _emailSender.BuildClient();
 
@@ -43,7 +43,7 @@ namespace Pfizer.PTEImporter.Services
             );
         }
 
-        public void SendEmailAsync(string from, string recipients, string subject, string body, string[] files)
+        public void SendEmail(string from, string recipients, string subject, string body, string[] files)
         {
             var client = _emailSender.BuildClient();
 
@@ -75,7 +75,7 @@ namespace Pfizer.PTEImporter.Services
         }
 
 
-        public void SendEmailAsync(string from, string[] recipients, string subject, string body, string[] files)
+        public void SendEmail(string from, string[] recipients, string subject, string body, string[] files)
         {
             var client = _emailSender.BuildClient();
 
