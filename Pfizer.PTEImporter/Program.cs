@@ -24,9 +24,9 @@ namespace Pfizer.PTEImporter
                 bootstrapper.Initialize();
 
                 //Getting a Tester object from DI and running it
-                using (var tester = bootstrapper.IocManager.ResolveAsDisposable<Worker>())
+                using (var worker = bootstrapper.IocManager.ResolveAsDisposable<Worker>())
                 {
-                    tester.Object.Run();
+                    worker.Object.Run();
                 } //Disposes tester and all it's dependencies
 
                 Console.WriteLine("Press enter to exit...");
