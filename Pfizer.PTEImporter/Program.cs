@@ -23,11 +23,14 @@ namespace Pfizer.PTEImporter
 
                 bootstrapper.Initialize();
 
-                //Getting a Tester object from DI and running it
+
+
+
+                //Getting a worker object from DI and running it
                 using (var worker = bootstrapper.IocManager.ResolveAsDisposable<Worker>())
                 {
                     worker.Object.Run();
-                } //Disposes tester and all it's dependencies
+                } //Disposes worker and all it's dependencies
 
                 Console.WriteLine("Background job is running please do not press enter to exit...");
                 Console.ReadLine();
