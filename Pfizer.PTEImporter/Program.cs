@@ -29,7 +29,7 @@ namespace Pfizer.PTEImporter
                     worker.Object.Run();
                 } //Disposes tester and all it's dependencies
 
-                Console.WriteLine("Press enter to exit...");
+                Console.WriteLine("Background job is running please do not press enter to exit...");
                 Console.ReadLine();
             }
 
