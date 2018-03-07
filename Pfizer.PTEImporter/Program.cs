@@ -23,6 +23,9 @@ namespace Pfizer.PTEImporter
 
                 bootstrapper.Initialize();
 
+
+
+
                 //Getting a worker object from DI and running it
                 using (var worker = bootstrapper.IocManager.ResolveAsDisposable<Worker>())
                 {
