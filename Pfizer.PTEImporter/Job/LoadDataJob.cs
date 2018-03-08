@@ -50,6 +50,7 @@ namespace Pfizer.PTEImporter.Job
                  {
                      var entity = x.MapTo<EpayRawDataLanding>();
                      var row = await _epayRawDataLandingRepository.InsertAsync(entity);
+                     Logger.Info(string.Format("report id: {0}, Id: {1} has been saved.", entity.ReportId, row.Id));
                      return row;
                  }
                 );
