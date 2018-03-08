@@ -77,7 +77,7 @@ namespace Pfizer.PTEImporter.Job
 
             //backup the source file and remove it from the source path
             Logger.Info("excel file archiving...");
-            var backupFolder = ConfigurationManager.AppSettings["BackUpPath"];
+            var backupFolder = ConfigurationManager.AppSettings["BackUpDirectory"];
             if (string.IsNullOrEmpty(backupFolder))
                 backupFolder = string.Format(@"{0}\Backup\", AppDomain.CurrentDomain.BaseDirectory);
             FileInfo file = new FileInfo(data.FilePath);
