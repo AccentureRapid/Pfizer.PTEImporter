@@ -10,11 +10,8 @@ using System.Threading.Tasks;
 namespace Pfizer.PTEImporter.Core.Entities
 {
     [Table("DEP_EpayRawDataLanding")]
-    public class EpayRawDataLanding : Entity
+    public class EpayRawDataLanding : Entity<Guid>
     {
-        [NotMapped]
-        [Key]
-        public override int Id { get => base.Id; set => base.Id = value; }
         [NotMapped]
         public string ReportId { get; set; }
         public string CompanyCode { get; set; }

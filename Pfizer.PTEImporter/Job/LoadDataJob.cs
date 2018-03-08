@@ -24,12 +24,12 @@ namespace Pfizer.PTEImporter.Job
         private readonly IUnitOfWorkManager _unitOfWorkManager;
         private readonly IEventBus _eventBus;
         private readonly IImporterService _importerService;
-        private readonly IRepository<EpayRawDataLanding> _epayRawDataLandingRepository;
+        private readonly IRepository<EpayRawDataLanding,Guid> _epayRawDataLandingRepository;
         public LoadDataJob(
             IUnitOfWorkManager unitOfWorkManager,
             IEventBus eventBus,
             IImporterService importerService,
-            IRepository<EpayRawDataLanding> epayRawDataLandingRepository
+            IRepository<EpayRawDataLanding, Guid> epayRawDataLandingRepository
             )
         {
  
