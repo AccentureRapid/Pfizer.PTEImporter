@@ -15,6 +15,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Abp.AutoMapper;
+using System.Configuration;
 
 namespace Pfizer.PTEImporter.Job
 {
@@ -25,11 +26,13 @@ namespace Pfizer.PTEImporter.Job
         private readonly IEventBus _eventBus;
         private readonly IImporterService _importerService;
         private readonly IRepository<EpayRawDataLanding,Guid> _epayRawDataLandingRepository;
+        private readonly IFileService _fileService;
         public LoadDataJob(
             IUnitOfWorkManager unitOfWorkManager,
             IEventBus eventBus,
             IImporterService importerService,
-            IRepository<EpayRawDataLanding, Guid> epayRawDataLandingRepository
+            IRepository<EpayRawDataLanding, Guid> epayRawDataLandingRepository,
+            IFileService fileService
             )
         {
  
@@ -37,6 +40,7 @@ namespace Pfizer.PTEImporter.Job
             _eventBus = eventBus;
             _importerService = importerService;
             _epayRawDataLandingRepository = epayRawDataLandingRepository;
+            _fileService = fileService;
         }
         public async override void Execute(LoadDataJobParameter data)
         {
@@ -71,7 +75,21 @@ namespace Pfizer.PTEImporter.Job
 
             Logger.Info(string.Format("data {0} saved to temp table with {1}", result.Count, elapsedTime));
 
+            //backup the source file and remove it from the source path
+            Logger.Info("excel file archiving...");
+            var backupFolder = ConfigurationManager.AppSettings["BackUpPath"];
+            if (string.IsNullOrEmpty(backupFolder))
+                backupFolder = string.Format(@"{0}\Backup\", AppDomain.CurrentDomain.BaseDirectory);
+            FileInfo file = new FileInfo(data.FilePath);
+            var destination = Path.Combine(backupFolder, file.Name);
+            await _fileService.MakeSureDirectoryExist(backupFolder);
 
+            //1.Copy interface file to destination folder
+            await _fileService.Copy(data.FilePath, destination);
+            //2.Remove the source file
+            await _fileService.Delete(data.FilePath);
+
+            Logger.Info("excel file archived...");
 
             //5. trigger Job Completed event
             _eventBus.Trigger(new TaskCompletedEventData {  });
