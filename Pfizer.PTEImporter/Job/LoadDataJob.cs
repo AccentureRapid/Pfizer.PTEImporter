@@ -14,6 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Abp.AutoMapper;
 
 namespace Pfizer.PTEImporter.Job
 {
@@ -47,31 +48,27 @@ namespace Pfizer.PTEImporter.Job
             var batchSaveTasks = rows.Select(
                  async (x) =>
                  {
-                     var row = await _epayRawDataLandingRepository.InsertAsync(
-                         new EpayRawDataLanding
-                         {
-                             ReportId = x.ReportId
-                             //TODO fill other property
-                         });
+                     var entity = x.MapTo<EpayRawDataLanding>();
+                     var row = await _epayRawDataLandingRepository.InsertAsync(entity);
                      return row;
                  }
                 );
 
 
-            //Stopwatch stopWatch = new Stopwatch();
-            //stopWatch.Start();
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
 
-            //Logger.Info("data begin saving to temp table...");
+            Logger.Info("data begin saving to temp table...");
 
-            //var result = batchSaveTasks.Select(t => t.Result).ToList();
+            var result = batchSaveTasks.Select(t => t.Result).ToList();
 
-            //stopWatch.Stop();
-            //TimeSpan ts = stopWatch.Elapsed;
-            //string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-            //                     ts.Hours, ts.Minutes, ts.Seconds,
-            //                     ts.Milliseconds / 10);
+            stopWatch.Stop();
+            TimeSpan ts = stopWatch.Elapsed;
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                                 ts.Hours, ts.Minutes, ts.Seconds,
+                                 ts.Milliseconds / 10);
 
-            //Logger.Info(string.Format("data {0} saved to temp table with {1}", result.Count, elapsedTime));
+            Logger.Info(string.Format("data {0} saved to temp table with {1}", result.Count, elapsedTime));
 
 
 

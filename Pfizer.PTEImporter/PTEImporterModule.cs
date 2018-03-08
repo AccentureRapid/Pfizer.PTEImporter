@@ -1,4 +1,5 @@
-﻿using Abp.EntityFramework;
+﻿using Abp.AutoMapper;
+using Abp.EntityFramework;
 using Abp.Modules;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,7 @@ namespace Pfizer.PTEImporter
 {
     //Defining a module depends on AbpEntityFrameworkModule
     [DependsOn(typeof(AbpEntityFrameworkModule))]
+    [DependsOn(typeof(AbpAutoMapperModule))]
     public class PTEImporterModule : AbpModule
     {
         public override void PreInitialize()

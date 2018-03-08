@@ -19,8 +19,7 @@ namespace Pfizer.PTEImporter.Services
 {
     public class ImporterService : IImporterService
     {
-        private IEventBus _eventBus;
-     
+        private const int skippedRowCount = 1; // total row count should be skipped in the excel file
         public ImporterService()
         {
             
@@ -57,33 +56,92 @@ namespace Pfizer.PTEImporter.Services
             if (sheet != null)
             {
                 int lastRowNum = sheet.LastRowNum;
-                for (int i = 0; i < lastRowNum; i++)
+                for (int i = 0; i <= lastRowNum; i++)
                 {
-                    var model = new EpayRawDataLandingModel();
-                    IRow row = sheet.GetRow(i); 
-                    if (row != null)
+                    if (i > (skippedRowCount - 1))
                     {
-                        int cellCount = row.LastCellNum;//total cells
-                        
-                        if (cellCount > 0)
+                        var model = new EpayRawDataLandingModel();
+                        IRow row = sheet.GetRow(i);
+                        if (row != null)
                         {
-                            ICell cell = row.GetCell(0);
-                            if (cell != null)
+                            int cellCount = row.LastCellNum;//total cells
+
+                            if (cellCount > 0)
                             {
-                                string cellValue = cell.StringCellValue;
-                                model.ReportId = cellValue;
+                                ICell cell = row.GetCell(0);
+                                if (cell != null)
+                                {
+                                    var cellValue = cell.StringCellValue;
+                                    model.ReportId = cellValue.ToString();
+                                }
+
+                                model.CompanyCode = "7106";//hard code for pfizer company
+                                model.VendorInvoiceRef = model.ReportId;
+
+                                ICell cellEpayApprovedDate = row.GetCell(14);
+                                if (cellEpayApprovedDate != null)
+                                {
+                                    var cellValue = cellEpayApprovedDate.DateCellValue;
+                                    model.EpayApprovedDate = cellValue.ToString();
+                                }
+
+                                ICell cellCostCenter = row.GetCell(7);
+                                if (cellCostCenter != null)
+                                {
+                                    var cellValue = cellCostCenter.StringCellValue;
+                                    model.CostCenter = cellValue.ToString();
+                                }
+                                model.MaterialGroup = string.Empty;//TODO null
+                                model.MaterialGroupName = string.Empty;//TODO null
+                                model.MaterialCategory = string.Empty;//TODO null
+
+                                ICell cellItemStatus = row.GetCell(17);
+                                if (cellItemStatus != null)
+                                {
+                                    var cellValue = cellItemStatus.StringCellValue;
+                                    model.ItemStatus = cellValue.ToString();
+                                }
+
+                                model.PONumber = string.Empty;//TODO
+                                //ICell cellPONumber = row.GetCell(x);//TODO
+                                //if (cellPONumber != null)
+                                //{
+                                //    var cellValue = cellPONumber.StringCellValue;
+                                //    model.PONumber = cellValue.ToString();
+                                //}
+
+                                model.CreatedOn = DateTime.Now.ToString("");
+
+                                ICell cellAmount = row.GetCell(21);
+                                if (cellAmount != null)
+                                {
+                                    var cellValue = cellAmount.NumericCellValue;
+                                    model.Amount = cellValue.ToString();
+                                }
+
+                                ICell cellEpay_Requester = row.GetCell(5);
+                                if (cellEpay_Requester != null)
+                                {
+                                    var cellValue = cellEpay_Requester.StringCellValue;
+                                    //TODO get EID by Employee ID from employee
+                                    model.Epay_Requester = cellValue.ToString();
+                                }
+
+                                model.EpayNumber = model.ReportId;
+                                model.InvoiceSource = string.Empty;
+
+                                ICell cellSubject = row.GetCell(2);
+                                if (cellSubject != null)
+                                {
+                                    var cellValue = cellSubject.StringCellValue;
+                                    model.Subject = cellValue.ToString();
+                                }
+
+                                model.LineNumber = string.Empty;
                             }
 
-                            //TODO read other cells
-                            //ICell cell = row.GetCell(1);
-                            //if (cell != null)
-                            //{
-                            //    string cellValue = cell.StringCellValue;
-                            //    model.ReportId = cellValue;
-                            //}
-                        }
-
-                        list.Add(model);
+                            list.Add(model);
+                        } 
                     }
                 }
                
