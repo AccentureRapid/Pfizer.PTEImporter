@@ -9,6 +9,7 @@ namespace Pfizer.PTEImporter
     {
        
         public virtual IDbSet<EpayRawDataLanding> EpayRawDataLanding { get; set; }
+        public virtual IDbSet<Employee> Employee { get; set; }
         public PTEImporterDbContext()
             : base("Default")
         {

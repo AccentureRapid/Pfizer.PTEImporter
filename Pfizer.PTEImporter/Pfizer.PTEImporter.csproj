@@ -187,6 +187,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Core\Entities\Employee.cs" />
     <Compile Include="Core\Entities\EpayRawDataLanding.cs" />
     <Compile Include="EventHandler\BackgroundJobExceptionEventHandler.cs" />
     <Compile Include="EventHandler\TaskCompletedEventHandler.cs" />

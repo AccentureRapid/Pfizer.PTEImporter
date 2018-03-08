@@ -17,9 +17,10 @@ namespace Pfizer.PTEImporter
             //Bootstrapping ABP system
             using (var bootstrapper = AbpBootstrapper.Create<PTEImporterModule>())
             {
+                var config = string.Format(@"{0}\log4net.config", AppDomain.CurrentDomain.BaseDirectory);
                 bootstrapper.IocManager
                     .IocContainer
-                    .AddFacility<LoggingFacility>(f => f.LogUsing<Log4NetLoggerFactory>().WithConfig("log4net.config"));
+                    .AddFacility<LoggingFacility>(f => f.LogUsing<Log4NetLoggerFactory>().WithConfig(config));
 
                 bootstrapper.Initialize();
 

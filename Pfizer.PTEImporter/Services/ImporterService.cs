@@ -14,15 +14,18 @@ using System.IO;
 using NPOI.XSSF.UserModel;
 using NPOI.HSSF.UserModel;
 using Pfizer.PTEImporter.Model;
+using Abp.Domain.Repositories;
+using Pfizer.PTEImporter.Core.Entities;
 
 namespace Pfizer.PTEImporter.Services
 {
     public class ImporterService : IImporterService
     {
         private const int skippedRowCount = 1; // total row count should be skipped in the excel file
+ 
         public ImporterService()
         {
-            
+
         }
 
         public async Task<List<EpayRawDataLandingModel>> ReadDataSource(string fullPath)
@@ -49,6 +52,7 @@ namespace Pfizer.PTEImporter.Services
 
             return result;
         }
+
 
         private void ReadExcelDataToList(IWorkbook workbook, List<EpayRawDataLandingModel> list)
         {
@@ -147,5 +151,8 @@ namespace Pfizer.PTEImporter.Services
                
             }
         }
+
+
+
     }
 }

@@ -19,6 +19,7 @@ using System.Configuration;
 
 namespace Pfizer.PTEImporter.Job
 {
+    [UnitOfWork(IsDisabled = true)]
     public class LoadDataJob : BackgroundJob<LoadDataJobParameter>, ITransientDependency
     {
      
@@ -26,13 +27,25 @@ namespace Pfizer.PTEImporter.Job
         private readonly IEventBus _eventBus;
         private readonly IImporterService _importerService;
         private readonly IRepository<EpayRawDataLanding,Guid> _epayRawDataLandingRepository;
+        private readonly IRepository<Employee> _employeeRepository;
         private readonly IFileService _fileService;
+        private readonly IIocManager _iocManager;
+
+        public PTEImporterDbContext Db
+        {
+            get
+            {
+                return _iocManager.ResolveAsDisposable<PTEImporterDbContext>().Object;
+            }
+        }
         public LoadDataJob(
             IUnitOfWorkManager unitOfWorkManager,
             IEventBus eventBus,
             IImporterService importerService,
             IRepository<EpayRawDataLanding, Guid> epayRawDataLandingRepository,
-            IFileService fileService
+            IRepository<Employee> employeeRepository,
+            IFileService fileService,
+            IIocManager iocManager
             )
         {
  
@@ -40,16 +53,36 @@ namespace Pfizer.PTEImporter.Job
             _eventBus = eventBus;
             _importerService = importerService;
             _epayRawDataLandingRepository = epayRawDataLandingRepository;
+            _employeeRepository = employeeRepository;
             _fileService = fileService;
+            _iocManager = iocManager;
         }
+        
         public async override void Execute(LoadDataJobParameter data)
         {
             //1. load data from interface file
             Logger.Info("excel data begin loading...");
             var rows = await _importerService.ReadDataSource(data.FilePath);
 
+            var codes = rows.Select(x => x.Epay_Requester).ToList();
+            var employee = Db.Employee.Where(x => codes.Contains(x.Code)).ToList();
+               
+            var updatedCollection = await Task.Run(() =>
+            {
+                var updatedRows = rows.Select(row =>
+                {
+                    row.Epay_Requester = employee.FirstOrDefault(x => x.Code == row.Epay_Requester) == null ?
+                    string.Empty : employee.FirstOrDefault(x => x.Code == row.Epay_Requester).LogonId;
+                    return row;
+                }).ToList();
+
+
+                return updatedRows;
+            });
+
+           
             //2. batch insert these row into temp table.
-            var batchSaveTasks = rows.Select(
+            var batchSaveTasks = updatedCollection.Select(
                  async (x) =>
                  {
                      var entity = x.MapTo<EpayRawDataLanding>();
