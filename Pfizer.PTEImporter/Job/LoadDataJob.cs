@@ -64,7 +64,7 @@ namespace Pfizer.PTEImporter.Job
             Logger.Info("excel data begin loading...");
             var rows = await _importerService.ReadDataSource(data.FilePath);
 
-            var codes = rows.Select(x => x.Epay_Requester).ToList();
+            var codes = rows.Select(x => x.Epay_Requester).ToList().Distinct();
             var employee = Db.Employee.Where(x => codes.Contains(x.Code)).ToList();
                
             var updatedCollection = await Task.Run(() =>
